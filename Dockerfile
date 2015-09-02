@@ -1,15 +1,20 @@
-#复制文件 tengine-2.1.1.tar.gz 到/ace/upload 
-COPY tengine-2.1.1.tar.gz /ace/upload/tengine-2.1.1.tar.gz
+# "ported" by Adam Miller <maxamillion@fedoraproject.org> from
+#   https://github.com/fedora-cloud/Fedora-Dockerfiles
+#
+# Originally written for Fedora-Dockerfiles by
+#   scollier <scollier@redhat.com>
 
-#复制文件 nginx.conf 到/ace/upload 
-COPY nginx.conf /ace/upload/nginx.conf
+FROM centos:centos6
+MAINTAINER The CentOS Project <cloud-ops@centos.org>
 
-#复制文件 mirrors-web-master.zip 到/ace/upload 
-COPY mirrors-web-master.zip /ace/upload/mirrors-web-master.zip
+RUN yum -y update; yum clean all
+RUN yum -y install epel-release; yum clean all
+RUN yum -y install nginx; yum clean all
+RUN cp -f nginx.conf /etc/nginx/conf.d/default.conf
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN echo "nginx on CentOS 6 inside Docker" > /usr/share/nginx/html/index.html
 
+EXPOSE 80
+
+CMD [ "/usr/sbin/nginx" ]
 # 编写你的Dockerfile 
-RUN cd /ace/upload && tar -zxvf tengine-2.1.1.tar.gz && cd tengine-2.1.1 && \ 
-./configure --prefix=/ace/user/nginx &&  make && make install
-RUN cp -f /ace/upload/nginx.conf /ace/user/nginx/conf/
-RUN unzip /ace/upload/mirrors-web-master.zip -d /ace/code/
-RUN echo "/ace/user/nginx/sbin/nginx" > /ace/bin/start
